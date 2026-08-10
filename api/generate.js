@@ -1,4 +1,4 @@
-const modelName = req.body.model || 'gemini-1.5-flash'; where your request body variables are destructured, and ensure your Google API fetch URL uses ${modelName}.
+const modelName = req.body.model || ''gemini-2.5-flash' or 'gemini-1.5-flash'.; where your request body variables are destructured, and ensure your Google API fetch URL uses ${modelName}.
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -11,8 +11,9 @@ export default async function handler(req, res) {
   if (!apiKey) {
     return res.status(500).json({ error: 'API key is missing on backend configuration.' });
   }
-
-  const selectedModel = model || 'gemini-3.5-flash';
+ 
+  const selectedModel = req.body.model || 'gemini-2.5-flash';
+';
 
   const promptText = `Act as a supportive, empathetic child development expert designing ideas for exhausted parents in the early evening.
 Generate 3 low-prep, low-mess, screen-free games.
