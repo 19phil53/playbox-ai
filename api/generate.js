@@ -1,5 +1,3 @@
-const modelName = req.body.model || ''gemini-2.5-flash' or 'gemini-1.5-flash'.; where your request body variables are destructured, and ensure your Google API fetch URL uses ${modelName}.
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -11,11 +9,10 @@ export default async function handler(req, res) {
   if (!apiKey) {
     return res.status(500).json({ error: 'API key is missing on backend configuration.' });
   }
- 
-  const selectedModel = req.body.model || 'gemini-2.5-flash';
-';
 
-  const promptText = `Act as a supportive, empathetic child development expert designing ideas for exhausted parents in the early evening.
+  const selectedModel = model || 'gemini-2.5-flash';
+
+  const promptText = `Act as a supportive, empathetic child development expert.
 Generate 3 low-prep, low-mess, screen-free games.
 Age Group: ${age}
 Available Items: ${items}
@@ -23,7 +20,7 @@ Time Frame: ${time}
 
 Format each game precisely like this:
 ### Game Title
-**Prep Time:** [e.g. 1 Minute] | **Mess Level:** [e.g. Zero / Low] | **Parent Energy Required:** [e.g. Sit Down]
+**Prep Time:** [e.g. 1 Minute] | **Mess Level:** [e.g. Zero / Low] | **Parent Energy Required:** [e.g. Sit on Couch]
 **Objective:** Short 1-sentence summary.
 **How to Play:**
 * Step 1
@@ -32,13 +29,16 @@ Format each game precisely like this:
 **Parent Perk:** Why this gives parents a breather or quick win.`;
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: promptText }] }]
-      })
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: promptText }] }]
+        })
+      }
+    );
 
     const data = await response.json();
 
@@ -51,4 +51,3 @@ Format each game precisely like this:
     return res.status(500).json({ error: 'Failed to fetch from Gemini API' });
   }
 }
-
