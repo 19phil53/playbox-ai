@@ -1,3 +1,5 @@
+const modelName = req.body.model || 'gemini-1.5-flash'; where your request body variables are destructured, and ensure your Google API fetch URL uses ${modelName}.
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
