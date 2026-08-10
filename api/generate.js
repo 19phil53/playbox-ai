@@ -11,8 +11,8 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'API key is missing on backend configuration.' });
     }
 
-    // Always use the standard 2.5 Flash model endpoint
-    const selectedModel = 'gemini-2.5-flash';
+    // Standard production-ready model string
+    const selectedModel = 'gemini-2.0-flash';
 
     const promptText = `Act as a supportive, empathetic child development expert.
 Generate 3 low-prep, low-mess, screen-free games.
