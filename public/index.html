@@ -90,8 +90,8 @@
         return;
       }
 
-      // Safe daily usage cap logic
-      const MAX_DAILY_GENERATIONS = 3;
+      // Safe daily usage limit check
+      const MAX_DAILY = 3;
       const today = new Date().toISOString().split('T')[0];
       let usageData = { date: today, count: 0 };
 
@@ -107,12 +107,11 @@
         usageData = { date: today, count: 0 };
       }
 
-      if (usageData.count >= MAX_DAILY_GENERATIONS) {
+      if (usageData.count >= MAX_DAILY) {
         alert("You've reached your 3 free game generations for today! Come back tomorrow or upgrade for unlimited access.");
         return;
       }
 
-      // UI updates on submit
       btn.disabled = true;
       btn.innerText = 'Finding Ideas...';
       
@@ -151,127 +150,68 @@
       }
 
       function resetBtn() {
-        btn.disabled = false;
-        btn.innerText = 'Find Easy Games';
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = 'Find Easy Games';
+        }
       }
     }
 
     function renderGames(data) {
-  const resultsDiv = document.getElementById('results');
-  resultsDiv.innerHTML = '';
+      const resultsDiv = document.getElementById('results');
+      if (!resultsDiv) return;
+      resultsDiv.innerHTML = '';
 
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  if (!text) {
-    resultsDiv.innerHTML = '<p>No games generated. Please try again.</p>';
-    return;
-  }
-
-  // Clean out stray separator lines
-  const cleanText = text.replace(/\*\*\*/g, '').trim();
-  const rawCards = cleanText.split(/###\s+/).filter(Boolean);
-
-  rawCards.forEach(cardText => {
-    const lines = cardText.trim().split('\n').filter(Boolean);
-    const title = lines[0].replace(/\*\*/g, '').trim();
-    const bodyLines = lines.slice(1);
-
-    let htmlBody = '';
-    bodyLines.forEach(line => {
-      let trimmed = line.trim();
-
-      // Parse metadata into pill tags
-      if (trimmed.includes('Prep Time:') || trimmed.includes('Mess Level:') || trimmed.includes('Parent Energy')) {
-        const parts = trimmed.split('|');
-        let tagsHtml = '<div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin: 0.5rem 0 0.8rem 0;">';
-        parts.forEach(p => {
-          const cleanP = p.replace(/\*\*/g, '').trim();
-          if (cleanP.toLowerCase().includes('prep time')) {
-            tagsHtml += `<span style="background:#EBF8FF; color:#2B6CB0; font-size:0.75rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:20px;">${cleanP}</span>`;
-          } else if (cleanP.toLowerCase().includes('mess level')) {
-            tagsHtml += `<span style="background:#FEEBC8; color:#C05621; font-size:0.75rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:20px;">${cleanP}</span>`;
-          } else if (cleanP.toLowerCase().includes('parent energy')) {
-            tagsHtml += `<span style="background:#FED7D7; color:#9B2C2C; font-size:0.75rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:20px;">${cleanP}</span>`;
-          }
-        });
-        tagsHtml += '</div>';
-        htmlBody += tagsHtml;
-      } else {
-        // Format bold labels and bullet points
-        let formatted = trimmed
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/^\*\s+/, '• ');
-
-        htmlBody += `<p style="margin-bottom:0.4rem; font-size:0.95rem; line-height:1.4;">${formatted}</p>`;
-      }
-    });
-
-    const cardHtml = `
-      <div class="game-card">
-        <h3>${title}</h3>
-        ${htmlBody}
-      </div>
-    `;
-    resultsDiv.innerHTML += cardHtml;
-  });
-}
-
-
-  // Render each game card
-  sections.forEach(cardText => {
-    const lines = cardText.trim().split('\n').filter(Boolean);
-    const title = lines[0] || 'Fun Game Idea';
-    const bodyLines = lines.slice(1);
-
-    let htmlBody = '';
-    bodyLines.forEach(line => {
-      // Style tag badges
-      if (line.includes('Prep Time:') || line.includes('Mess Level:') || line.includes('Parent Energy')) {
-        const parts = line.split('|');
-        let tagsHtml = '<div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin: 0.5rem 0 1rem 0;">';
-        parts.forEach(p => {
-          if (p.includes('Prep Time')) tagsHtml += `<span style="background:#EBF8FF; color:#2B6CB0; font-size:0.75rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:20px;">${p.replace(/\*\*/g, '').trim()}</span>`;
-          else if (p.includes('Mess Level')) tagsHtml += `<span style="background:#FEEBC8; color:#C05621; font-size:0.75rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:20px;">${p.replace(/\*\*/g, '').trim()}</span>`;
-          else if (p.includes('Parent Energy')) tagsHtml += `<span style="background:#FED7D7; color:#9B2C2C; font-size:0.75rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:20px;">${p.replace(/\*\*/g, '').trim()}</span>`;
-        });
-        tagsHtml += '</div>';
-        htmlBody += tagsHtml;
-      } else {
-        // Standard formatted text
-        let formattedLine = line
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/^\*\s+/, '• ');
-        htmlBody += `<p style="margin-bottom:0.5rem; font-size:0.95rem; line-height:1.4;">${formattedLine}</p>`;
-      }
-    });
-
-    const cardHtml = `
-      <div class="game-card">
-        <h3>${title.replace(/\*\*/g, '')}</h3>
-        ${htmlBody}
-      </div>
-    `;
-    resultsDiv.innerHTML += cardHtml;
-  });
-}
-
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (!text) {
+        resultsDiv.innerHTML = '<p>No games generated. Please try again.</p>';
+        return;
       }
 
-      const rawCards = text.split(/###\s+/).filter(Boolean);
+      // Clean out stray divider lines
+      const cleanText = text.replace(/\*\*\*/g, '').trim();
+      const rawCards = cleanText.split(/###\s+/).filter(Boolean);
 
       rawCards.forEach(cardText => {
         const lines = cardText.trim().split('\n').filter(Boolean);
-        const title = lines[0] || 'Fun Game Idea';
-        const rest = lines.slice(1).join('<br>');
+        const title = lines[0] ? lines[0].replace(/\*\*/g, '').trim() : 'Fun Game Idea';
+        const bodyLines = lines.slice(1);
 
-        const cardHtml = `
-          <div class="game-card">
-            <h3>${title}</h3>
-            <div>${rest}</div>
-          </div>
-        `;
+        let htmlBody = '';
+        bodyLines.forEach(line => {
+          let trimmed = line.trim();
+
+          // Parse metadata into pill tags
+          if (trimmed.includes('Prep Time:') || trimmed.includes('Mess Level:') || trimmed.includes('Parent Energy')) {
+            const parts = trimmed.split('|');
+            let tagsHtml = '<div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin: 0.5rem 0 0.8rem 0;">';
+            parts.forEach(p => {
+              const cleanP = p.replace(/\*\*/g, '').trim();
+              if (cleanP.toLowerCase().includes('prep time')) {
+                tagsHtml += '<span style="background:#EBF8FF; color:#2B6CB0; font-size:0.75rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:20px;">' + cleanP + '</span>';
+              } else if (cleanP.toLowerCase().includes('mess level')) {
+                tagsHtml += '<span style="background:#FEEBC8; color:#C05621; font-size:0.75rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:20px;">' + cleanP + '</span>';
+              } else if (cleanP.toLowerCase().includes('parent energy')) {
+                tagsHtml += '<span style="background:#FED7D7; color:#9B2C2C; font-size:0.75rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:20px;">' + cleanP + '</span>';
+              }
+            });
+            tagsHtml += '</div>';
+            htmlBody += tagsHtml;
+          } else {
+            // Format bold headers and bullet points cleanly
+            let formatted = trimmed
+              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/^\*\s+/, '• ');
+
+            htmlBody += '<p style="margin-bottom:0.4rem; font-size:0.95rem; line-height:1.4;">' + formatted + '</p>';
+          }
+        });
+
+        const cardHtml = '<div class="game-card"><h3>' + title + '</h3>' + htmlBody + '</div>';
         resultsDiv.innerHTML += cardHtml;
       });
     }
   </script>
 </body>
 </html>
+      
