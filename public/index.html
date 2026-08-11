@@ -166,18 +166,55 @@
     return;
   }
 
-  // Split content by game headers (###)
-  const sections = text.split(/###\s+/).filter(Boolean);
+  // Clean out stray separator lines
+  const cleanText = text.replace(/\*\*\*/g, '').trim();
+  const rawCards = cleanText.split(/###\s+/).filter(Boolean);
 
-  // If there's an intro note before the first game, render it cleanly
-  if (!text.startsWith('###') && sections.length > 1) {
-    const introText = sections.shift().trim();
-    resultsDiv.innerHTML += `
-      <div style="background: #FFF9E6; border-left: 4px solid #F6AD55; padding: 1rem; border-radius: 8px; font-size: 0.9rem; color: #744210; margin-bottom: 1.25rem;">
-        ${introText.replace(/\n/g, '<br>')}
+  rawCards.forEach(cardText => {
+    const lines = cardText.trim().split('\n').filter(Boolean);
+    const title = lines[0].replace(/\*\*/g, '').trim();
+    const bodyLines = lines.slice(1);
+
+    let htmlBody = '';
+    bodyLines.forEach(line => {
+      let trimmed = line.trim();
+
+      // Parse metadata into pill tags
+      if (trimmed.includes('Prep Time:') || trimmed.includes('Mess Level:') || trimmed.includes('Parent Energy')) {
+        const parts = trimmed.split('|');
+        let tagsHtml = '<div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin: 0.5rem 0 0.8rem 0;">';
+        parts.forEach(p => {
+          const cleanP = p.replace(/\*\*/g, '').trim();
+          if (cleanP.toLowerCase().includes('prep time')) {
+            tagsHtml += `<span style="background:#EBF8FF; color:#2B6CB0; font-size:0.75rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:20px;">${cleanP}</span>`;
+          } else if (cleanP.toLowerCase().includes('mess level')) {
+            tagsHtml += `<span style="background:#FEEBC8; color:#C05621; font-size:0.75rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:20px;">${cleanP}</span>`;
+          } else if (cleanP.toLowerCase().includes('parent energy')) {
+            tagsHtml += `<span style="background:#FED7D7; color:#9B2C2C; font-size:0.75rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:20px;">${cleanP}</span>`;
+          }
+        });
+        tagsHtml += '</div>';
+        htmlBody += tagsHtml;
+      } else {
+        // Format bold labels and bullet points
+        let formatted = trimmed
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/^\*\s+/, '• ');
+
+        htmlBody += `<p style="margin-bottom:0.4rem; font-size:0.95rem; line-height:1.4;">${formatted}</p>`;
+      }
+    });
+
+    const cardHtml = `
+      <div class="game-card">
+        <h3>${title}</h3>
+        ${htmlBody}
       </div>
     `;
-  }
+    resultsDiv.innerHTML += cardHtml;
+  });
+}
+
 
   // Render each game card
   sections.forEach(cardText => {
