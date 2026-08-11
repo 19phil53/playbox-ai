@@ -187,6 +187,45 @@
 }
 
 
+  try {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items, age, time })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      alert('Error generating games: ' + (data.error || 'Unknown error'));
+      resetBtn();
+      return;
+    }
+
+    // Safely save incremented count
+    try {
+      usageData.count += 1;
+      localStorage.setItem('playbox_usage', JSON.stringify(usageData));
+    } catch (e) {
+      console.warn('Could not save to localStorage:', e);
+    }
+
+    resetBtn();
+    renderGames(data);
+  } catch (err) {
+    alert('Error connecting to server: ' + err.message);
+    resetBtn();
+  }
+
+  function resetBtn() {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = 'Find Easy Games';
+    }
+  }
+}
+
+
     // --- 2. INCREMENT COUNT ON SUCCESS ---
     usageData.count += 1;
     localStorage.setItem('playbox_usage', JSON.stringify(usageData));
