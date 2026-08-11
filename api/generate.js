@@ -11,8 +11,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'API key is missing on backend configuration.' });
     }
 
-    // Active production model string
-    const selectedModel = 'gemini-3.5-flash';
+    const selectedModel = 'gemini-2.5-flash';
 
     const promptText = `Act as a supportive, empathetic child development expert.
 Generate exactly 3 low-prep, low-mess, screen-free games.
@@ -34,7 +33,6 @@ CRITICAL INSTRUCTIONS:
 * Step 2 explanation.
 * Step 3 explanation.
 **Parent Perk:** Why this gives parents a breather.`;
-
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`,
