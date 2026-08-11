@@ -9,46 +9,36 @@
       --primary: #5B8DEF;
       --primary-hover: #4A7BDC;
       --accent: #FF8BA7;
-      --accent-bg: #FFF0F3;
       --bg: #F4F7FC;
       --card-bg: #FFFFFF;
       --text: #2D3748;
       --border: #E2E8F0;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 1rem; max-width: 600px; margin: 0 auto; min-height: 100vh; }
-    
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 1rem; max-width: 600px; margin: 0 auto; }
+
     header { text-align: center; margin-bottom: 1.25rem; padding-top: 0.5rem; }
     header h1 { font-size: 1.8rem; color: var(--primary); font-weight: 800; }
     header p { font-size: 0.95rem; color: #718096; margin-top: 0.25rem; }
 
-    .card { background: var(--card-bg); padding: 1.25rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 1rem; }
-    
+    .card { background: var(--card-bg); padding: 1.25rem; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1rem; }
+
     label { display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.4rem; color: #4A5568; }
-    input, select { width: 100%; padding: 0.8rem; border: 1.5px solid var(--border); border-radius: 10px; font-size: 1rem; margin-bottom: 1rem; background-color: #FAFCFF; }
+    input, select { width: 100%; padding: 0.8rem; border: 1.5px solid var(--border); border-radius: 8px; font-size: 1rem; margin-bottom: 1rem; }
     input:focus, select:focus { outline: none; border-color: var(--primary); }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 
-    button { width: 100%; padding: 0.9rem; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 6px rgba(91, 141, 239, 0.3); }
+    button { width: 100%; padding: 0.9rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; }
     button:hover { background: var(--primary-hover); }
     button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    .safety-card { background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; color: #92400E; font-size: 0.9rem; line-height: 1.4; }
-    
-    .game-card { background: #FFFFFF; border-radius: 12px; padding: 1.25rem; margin-top: 1rem; border: 1px solid #EBF8FF; border-left: 6px solid var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-    .game-card h3 { color: var(--primary); font-size: 1.2rem; margin-bottom: 0.5rem; font-weight: 700; }
-    
-    .tag-container { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
-    .tag { background: var(--accent-bg); color: #C53030; font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.6rem; border-radius: 20px; border: 1px solid #FED7D7; }
-    .tag-blue { background: #EBF8FF; color: #2B6CB0; border-color: #BEE3F8; }
+    .game-card { background: #FFFFFF; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; border-left: 5px solid var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+    .game-card h3 { color: var(--primary); font-size: 1.2rem; margin-bottom: 0.5rem; }
 
-    .game-card p { font-size: 0.95rem; line-height: 1.5; color: #4A5568; white-space: pre-line; }
-
-    .hidden { display: none; }
-    .spinner { border: 3px solid #EBF8FF; border-top: 3px solid var(--accent); border-radius: 50%; width: 28px; height: 28px; animation: spin 1s linear infinite; margin: 0 auto; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    #results { margin-top: 1.5rem; }
+    .loading { text-align: center; padding: 2rem; color: #718096; }
   </style>
 </head>
 <body>
@@ -59,300 +49,138 @@
   </header>
 
   <div class="card">
-    
-<input type="hidden" id="modelSelect" value="gemini-2.0-flash" />
-
-
-
-    <label for="items">Household Items on Hand</label>
-    <input type="text" id="items" placeholder="e.g. Socks, marbles, dice, cardboard box" />
+    <label for="itemsInput">Household Items on Hand</label>
+    <input type="text" id="itemsInput" placeholder="e.g. Socks, marbles, dice, cardboard box" />
 
     <div class="grid-2">
       <div>
-        <label for="age">Child's Age</label>
-        <select id="age">
-          <option value="Toddler (2-3 yrs)">2-3 Years</option>
-          <option value="Preschool (4-5 yrs)" selected>4-5 Years</option>
-          <option value="Kids (6-8 yrs)">6-8 Years</option>
-          <option value="Tweens (9-12 yrs)">9-12 Years</option>
+        <label for="ageSelect">Child's Age</label>
+        <select id="ageSelect">
+          <option value="1-2 Years">1-2 Years</option>
+          <option value="2-3 Years">2-3 Years</option>
+          <option value="4-5 Years" selected>4-5 Years</option>
+          <option value="6+ Years">6+ Years</option>
         </select>
       </div>
       <div>
-        <label for="time">Time Available</label>
-        <select id="time">
-          <option value="10-15 minutes">10-15 Mins</option>
-          <option value="30 minutes" selected>30 Mins</option>
-          <option value="1+ hour">1+ Hour</option>
+        <label for="timeSelect">Time Available</label>
+        <select id="timeSelect">
+          <option value="10-15 Mins">10-15 Mins</option>
+          <option value="30 Mins" selected>30 Mins</option>
+          <option value="1+ Hour">1+ Hour</option>
         </select>
       </div>
     </div>
 
-    <button id="generateBtn" onclick="generateGames()">Find Easy Games</button>
+    <button id="generateBtn" type="button" onclick="generateGames()">Find Easy Games</button>
   </div>
 
-  <div id="loading" class="card hidden" style="text-align: center; padding: 2rem;">
-    <div class="spinner"></div>
-    <p style="margin-top: 1rem; font-size: 0.95rem; color: #718096; font-weight: 500;">Finding quick, zero-stress ideas...</p>
-  </div>
-
-  <div id="results" class="card hidden">
-    <h2 style="font-size: 1.25rem; color: #2D3748;">Quick Play Ideas</h2>
-    <div id="gamesList"></div>
-  </div>
+  <div id="results"></div>
 
   <script>
     async function generateGames() {
-  const btn = document.getElementById('generateBtn');
-  const itemsInput = document.getElementById('itemsInput');
-  const items = itemsInput ? itemsInput.value.trim() : '';
-  const age = document.getElementById('ageSelect')?.value || '4-5 Years';
-  const time = document.getElementById('timeSelect')?.value || '30 Mins';
-
-  if (!items) {
-    alert('Please enter a few items you have on hand!');
-    return;
-  }
-
-  // --- DAILY USAGE CAP LOGIC (Fail-Safe) ---
-  const MAX_DAILY_GENERATIONS = 3;
-  const today = new Date().toISOString().split('T')[0];
-  let usageData = { date: today, count: 0 };
-
-  try {
-    const stored = localStorage.getItem('playbox_usage');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (parsed && parsed.date === today) {
-        usageData = parsed;
-      }
-    }
-  } catch (e) {
-    // Fallback if local storage is blocked or corrupt
-    usageData = { date: today, count: 0 };
-  }
-
-  if (usageData.count >= MAX_DAILY_GENERATIONS) {
-    alert("You've reached your 3 free game generations for today! Come back tomorrow or upgrade for unlimited access.");
-    return;
-  }
-  // ----------------------------------------
-
-  // Update button state immediately
-  if (btn) {
-    btn.disabled = true;
-    btn.innerText = 'Finding Ideas...';
-  }
-  
-  const resultsDiv = document.getElementById('results');
-  if (resultsDiv) {
-    resultsDiv.innerHTML = '<div class="loading"><p>Finding quick, zero-stress ideas...</p></div>';
-  }
-
-  try {
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items, age, time })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || data.error) {
-      alert('Error generating games: ' + (data.error || 'Unknown error'));
-      resetBtn();
-      return;
-    }
-
-    // Safely save incremented count
-    try {
-      usageData.count += 1;
-      localStorage.setItem('playbox_usage', JSON.stringify(usageData));
-    } catch (e) {
-      console.warn('Could not save to localStorage:', e);
-    }
-
-    resetBtn();
-    renderGames(data);
-  } catch (err) {
-    alert('Error connecting to server: ' + err.message);
-    resetBtn();
-  }
-
-  function resetBtn() {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerText = 'Find Easy Games';
-    }
-  }
-}
-
-
-  try {
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items, age, time })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || data.error) {
-      alert('Error generating games: ' + (data.error || 'Unknown error'));
-      resetBtn();
-      return;
-    }
-
-    // Safely save incremented count
-    try {
-      usageData.count += 1;
-      localStorage.setItem('playbox_usage', JSON.stringify(usageData));
-    } catch (e) {
-      console.warn('Could not save to localStorage:', e);
-    }
-
-    resetBtn();
-    renderGames(data);
-  } catch (err) {
-    alert('Error connecting to server: ' + err.message);
-    resetBtn();
-  }
-
-  function resetBtn() {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerText = 'Find Easy Games';
-    }
-  }
-}
-
-
-    // --- 2. INCREMENT COUNT ON SUCCESS ---
-    usageData.count += 1;
-    localStorage.setItem('playbox_usage', JSON.stringify(usageData));
-    // -------------------------------------
-
-    if (typeof hideLoadingState === 'function') hideLoadingState();
-    if (btn) btn.disabled = false;
-
-    renderGames(data);
-  } catch (err) {
-    alert('Error connecting to server: ' + err.message);
-    if (typeof hideLoadingState === 'function') hideLoadingState();
-    if (btn) btn.disabled = false;
-  }
-}
-
-
-    // Increment count on successful generation
-    usageData.count += 1;
-    localStorage.setItem('playbox_usage', JSON.stringify(usageData));
-
-    renderGames(data);
-  } catch (err) {
-    alert('Error connecting to server: ' + err.message);
-    hideLoadingState();
-  }
-}
-
-
-    // --- INCREMENT COUNT ON SUCCESS ---
-    usageData.count += 1;
-    localStorage.setItem('playbox_usage', JSON.stringify(usageData));
-    // ----------------------------------
-
-    renderGames(data);
-  } catch (err) {
-    alert('Error connecting to server: ' + err.message);
-    hideLoadingState();
-  }
-}
-
-    async function generateGames() {
-      const model = document.getElementById('modelSelect').value;
-      const items = document.getElementById('items').value.trim();
-      const age = document.getElementById('age').value;
-      const time = document.getElementById('time').value;
+      const btn = document.getElementById('generateBtn');
+      const itemsInput = document.getElementById('itemsInput');
+      const items = itemsInput ? itemsInput.value.trim() : '';
+      const age = document.getElementById('ageSelect')?.value || '4-5 Years';
+      const time = document.getElementById('timeSelect')?.value || '30 Mins';
 
       if (!items) {
-        alert('Please enter a few household items.');
+        alert('Please enter a few items you have on hand!');
         return;
       }
 
-      const btn = document.getElementById('generateBtn');
-      const loading = document.getElementById('loading');
-      const results = document.getElementById('results');
-      const gamesList = document.getElementById('gamesList');
+      // Safe daily usage cap logic
+      const MAX_DAILY_GENERATIONS = 3;
+      const today = new Date().toISOString().split('T')[0];
+      let usageData = { date: today, count: 0 };
 
+      try {
+        const stored = localStorage.getItem('playbox_usage');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && parsed.date === today) {
+            usageData = parsed;
+          }
+        }
+      } catch (e) {
+        usageData = { date: today, count: 0 };
+      }
+
+      if (usageData.count >= MAX_DAILY_GENERATIONS) {
+        alert("You've reached your 3 free game generations for today! Come back tomorrow or upgrade for unlimited access.");
+        return;
+      }
+
+      // UI updates on submit
       btn.disabled = true;
-      loading.classList.remove('hidden');
-      results.classList.add('hidden');
-      gamesList.innerHTML = '';
+      btn.innerText = 'Finding Ideas...';
+      
+      const resultsDiv = document.getElementById('results');
+      if (resultsDiv) {
+        resultsDiv.innerHTML = '<div class="loading"><p>Finding quick, zero-stress ideas...</p></div>';
+      }
 
       try {
         const response = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ items, age, time, model: 'gemini-2.5-flash' })
-
+          body: JSON.stringify({ items, age, time })
         });
 
         const data = await response.json();
 
-        if (data.error) {
-          throw new Error(data.error);
+        if (!response.ok || data.error) {
+          alert('Error generating games: ' + (data.error || 'Unknown error'));
+          resetBtn();
+          return;
         }
 
-        const rawText = data.candidates[0].content.parts[0].text;
-        const sections = rawText.split('###').filter(s => s.trim().length > 0);
+        try {
+          usageData.count += 1;
+          localStorage.setItem('playbox_usage', JSON.stringify(usageData));
+        } catch (e) {
+          console.warn('Could not update localStorage', e);
+        }
 
-        sections.forEach((sectionStr, index) => {
-          let trimmed = sectionStr.trim();
-
-          if (index === 0 && !rawText.trim().startsWith('###')) {
-            const safetyDiv = document.createElement('div');
-            safetyDiv.className = 'safety-card';
-            safetyDiv.innerHTML = `<strong>Safety Note:</strong> ${trimmed.replace(/\*\*/g, '').replace(/^\*\s*/gm, '')}`;
-            gamesList.appendChild(safetyDiv);
-            return;
-          }
-
-          const lines = trimmed.split('\n');
-          const title = lines[0].replace(/\*/g, '').trim();
-          let body = lines.slice(1).join('\n').trim();
-
-          let tagHTML = '';
-          if (body.includes('**Prep Time:**')) {
-            const tagLine = body.split('\n')[0];
-            body = body.split('\n').slice(1).join('\n').trim();
-            
-            const tags = tagLine.replace(/\*\*/g, '').split('|');
-            tagHTML = '<div class="tag-container">';
-            tags.forEach((t, i) => {
-              const cls = i === 0 ? 'tag tag-blue' : 'tag';
-              tagHTML += `<span class="${cls}">${t.trim()}</span>`;
-            });
-            tagHTML += '</div>';
-          }
-
-          // Clean up formatting
-          const cleanBody = body
-            .replace(/\*\*/g, '')          // Remove bold markdown
-            .replace(/^\*\s*/gm, '')       // Strip stray * bullet points
-            .replace(/\n{3,}/g, '\n\n');   // Remove excess blank lines
-
-          const gameDiv = document.createElement('div');
-          gameDiv.className = 'game-card';
-          gameDiv.innerHTML = `<h3>${title}</h3>${tagHTML}<p>${cleanBody}</p>`;
-          gamesList.appendChild(gameDiv);
-        });
-
-        results.classList.remove('hidden');
+        resetBtn();
+        renderGames(data);
       } catch (err) {
-        alert('Error generating games: ' + err.message);
-      } finally {
-        btn.disabled = false;
-        loading.classList.add('hidden');
+        alert('Error connecting to server: ' + err.message);
+        resetBtn();
       }
+
+      function resetBtn() {
+        btn.disabled = false;
+        btn.innerText = 'Find Easy Games';
+      }
+    }
+
+    function renderGames(data) {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '';
+
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (!text) {
+        resultsDiv.innerHTML = '<p>No games generated. Please try again.</p>';
+        return;
+      }
+
+      const rawCards = text.split(/###\s+/).filter(Boolean);
+
+      rawCards.forEach(cardText => {
+        const lines = cardText.trim().split('\n').filter(Boolean);
+        const title = lines[0] || 'Fun Game Idea';
+        const rest = lines.slice(1).join('<br>');
+
+        const cardHtml = `
+          <div class="game-card">
+            <h3>${title}</h3>
+            <div>${rest}</div>
+          </div>
+        `;
+        resultsDiv.innerHTML += cardHtml;
+      });
     }
   </script>
 </body>
