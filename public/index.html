@@ -102,6 +102,65 @@
 
   <script>
     async function generateGames() {
+  const items = document.getElementById('itemsInput').value.trim();
+  const age = document.getElementById('ageSelect').value;
+  const time = document.getElementById('timeSelect').value;
+
+  if (!items) {
+    alert('Please enter a few items you have on hand!');
+    return;
+  }
+
+  // --- DAILY USAGE CAP LOGIC ---
+  const MAX_DAILY_GENERATIONS = 3;
+  const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+  // Retrieve stored data
+  let usageData = JSON.parse(localStorage.getItem('playbox_usage')) || { date: today, count: 0 };
+
+  // Reset count if it's a new day
+  if (usageData.date !== today) {
+    usageData = { date: today, count: 0 };
+  }
+
+  // Check if limit is reached
+  if (usageData.count >= MAX_DAILY_GENERATIONS) {
+    alert("You've reached your 3 free game generations for today! Come back tomorrow or upgrade for unlimited access.");
+    return;
+  }
+  // -----------------------------
+
+  // UI loading states
+  showLoadingState();
+
+  try {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items, age, time })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      alert('Error generating games: ' + (data.error || 'Unknown error'));
+      hideLoadingState();
+      return;
+    }
+
+    // --- INCREMENT COUNT ON SUCCESS ---
+    usageData.count += 1;
+    localStorage.setItem('playbox_usage', JSON.stringify(usageData));
+    // ----------------------------------
+
+    renderGames(data);
+  } catch (err) {
+    alert('Error connecting to server: ' + err.message);
+    hideLoadingState();
+  }
+}
+
+    async function generateGames() {
       const model = document.getElementById('modelSelect').value;
       const items = document.getElementById('items').value.trim();
       const age = document.getElementById('age').value;
