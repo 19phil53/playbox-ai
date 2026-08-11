@@ -126,7 +126,8 @@
         const response = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ items, age, time, model })
+          body: JSON.stringify({ items, age, time, model: 'gemini-2.5-flash' })
+
         });
 
         const data = await response.json();
