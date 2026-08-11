@@ -228,6 +228,36 @@
     });
   }
 </script>
+<!-- Upgrade Modal Overlay -->
+<div id="paywallModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
+  <div style="background: #FFFFFF; max-width: 440px; width: 100%; border-radius: 20px; padding: 1.75rem; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative;">
+    
+    <div style="background: #FFF0F3; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 1.75rem;">
+      ✨
+    </div>
+
+    <h2 style="font-size: 1.35rem; font-weight: 800; color: #2D3748; margin-bottom: 0.5rem;">Daily Limit Reached</h2>
+    <p style="font-size: 0.925rem; color: #718096; line-height: 1.5; margin-bottom: 1.25rem;">
+      You've used your 3 free game generations for today! Upgrade to <strong>PlayBox AI Unlimited</strong> to keep instant, screen-free activity ideas on tap all evening.
+    </p>
+
+    <!-- Value Props -->
+    <div style="background: #F4F7FC; border-radius: 12px; padding: 0.85rem; text-align: left; margin-bottom: 1.25rem; font-size: 0.85rem; color: #4A5568;">
+      <div style="margin-bottom: 0.4rem;">⚡ <strong>Unlimited</strong> AI game generations</div>
+      <div style="margin-bottom: 0.4rem;">👶 Custom developmental age filters</div>
+      <div>🔒 Cancel anytime with one tap</div>
+    </div>
+
+    <!-- Call to Action -->
+    <a id="stripeUpgradeLink" href="YOUR_STRIPE_PAYMENT_LINK_HERE" target="_blank" style="display: block; width: 100%; padding: 0.9rem; background: #5B8DEF; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 12px rgba(91, 141, 239, 0.35); margin-bottom: 0.75rem;">
+      Upgrade for £3.95/mo
+    </a>
+
+    <button type="button" onclick="closePaywallModal()" style="background: transparent; border: none; color: #A0AEC0; font-size: 0.85rem; font-weight: 600; cursor: pointer; width: auto; padding: 0.25rem;">
+      Maybe tomorrow
+    </button>
+  </div>
+</div>
 
 </body>
 </html>
