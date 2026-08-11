@@ -40,14 +40,14 @@
     #results { margin-top: 1.5rem; }
     .loading { text-align: center; padding: 2rem; color: #718096; }
   </style>
-  <!-- PWA Tags -->
-<link rel="manifest" href="/manifest.json" />
-<meta name="theme-color" content="#5B8DEF" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-<meta name="apple-mobile-web-app-title" content="PlayBox AI" />
-<link rel="apple-touch-icon" href="/icon-192.png" />
 
+  <!-- PWA Tags -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#5B8DEF" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="PlayBox AI" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
 </head>
 <body>
 
@@ -85,98 +85,71 @@
 
   <div id="results"></div>
 
+  <!-- Upgrade Modal Overlay -->
+  <div id="paywallModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
+    <div style="background: #FFFFFF; max-width: 440px; width: 100%; border-radius: 20px; padding: 1.75rem; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative;">
+      
+      <div style="background: #FFF0F3; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 1.75rem;">
+        ✨
+      </div>
+
+      <h2 style="font-size: 1.35rem; font-weight: 800; color: #2D3748; margin-bottom: 0.5rem;">Daily Limit Reached</h2>
+      <p style="font-size: 0.925rem; color: #718096; line-height: 1.5; margin-bottom: 1.25rem;">
+        You've used your 3 free game generations for today! Upgrade to <strong>PlayBox AI Unlimited</strong> to keep instant, screen-free activity ideas on tap all evening.
+      </p>
+
+      <!-- Value Props -->
+      <div style="background: #F4F7FC; border-radius: 12px; padding: 0.85rem; text-align: left; margin-bottom: 1.25rem; font-size: 0.85rem; color: #4A5568;">
+        <div style="margin-bottom: 0.4rem;">⚡ <strong>Unlimited</strong> AI game generations</div>
+        <div style="margin-bottom: 0.4rem;">👶 Custom developmental age filters</div>
+        <div>🔒 Cancel anytime with one tap</div>
+      </div>
+
+      <!-- Call to Action -->
+      <a id="stripeUpgradeLink" href="YOUR_STRIPE_PAYMENT_LINK_HERE" target="_blank" style="display: block; width: 100%; padding: 0.9rem; background: #5B8DEF; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 12px rgba(91, 141, 239, 0.35); margin-bottom: 0.75rem;">
+        Upgrade for £3.95/mo
+      </a>
+
+      <button type="button" onclick="closePaywallModal()" style="background: transparent; border: none; color: #A0AEC0; font-size: 0.85rem; font-weight: 600; cursor: pointer; width: auto; padding: 0.25rem;">
+        Maybe tomorrow
+      </button>
+    </div>
+  </div>
+
   <script>
     async function generateGames() {
-  const btn = document.getElementById('generateBtn');
-  const itemsInput = document.getElementById('itemsInput');
-  const items = itemsInput ? itemsInput.value.trim() : '';
-  const age = document.getElementById('ageSelect')?.value || '4-5 Years';
-  const time = document.getElementById('timeSelect')?.value || '30 Mins';
+      const btn = document.getElementById('generateBtn');
+      const itemsInput = document.getElementById('itemsInput');
+      const items = itemsInput ? itemsInput.value.trim() : '';
+      const age = document.getElementById('ageSelect')?.value || '4-5 Years';
+      const time = document.getElementById('timeSelect')?.value || '30 Mins';
 
-  if (!items) {
-    alert('Please enter a few items you have on hand!');
-    return;
-  }
-
-  // Safe daily usage limit check
-  const MAX_DAILY = 3;
-  const today = new Date().toISOString().split('T')[0];
-  let usageData = { date: today, count: 0 };
-
-  try {
-    const stored = localStorage.getItem('playbox_usage');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (parsed && parsed.date === today) {
-        usageData = parsed;
+      if (!items) {
+        alert('Please enter a few items you have on hand!');
+        return;
       }
-    }
-  } catch (e) {
-    usageData = { date: today, count: 0 };
-  }
 
-  // TRIGGER IN-PAGE PAYWALL MODAL
-  if (usageData.count >= MAX_DAILY) {
-    showPaywallModal();
-    return;
-  }
+      // Safe daily usage limit check
+      const MAX_DAILY = 3;
+      const today = new Date().toISOString().split('T')[0];
+      let usageData = { date: today, count: 0 };
 
-  btn.disabled = true;
-  btn.innerText = 'Finding Ideas...';
-  
-  const resultsDiv = document.getElementById('results');
-  if (resultsDiv) {
-    resultsDiv.innerHTML = '<div class="loading"><p>Finding quick, zero-stress ideas...</p></div>';
-  }
+      try {
+        const stored = localStorage.getItem('playbox_usage');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && parsed.date === today) {
+            usageData = parsed;
+          }
+        }
+      } catch (e) {
+        usageData = { date: today, count: 0 };
+      }
 
-  try {
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items, age, time })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || data.error) {
-      alert('Error generating games: ' + (data.error || 'Unknown error'));
-      resetBtn();
-      return;
-    }
-
-    try {
-      usageData.count += 1;
-      localStorage.setItem('playbox_usage', JSON.stringify(usageData));
-    } catch (e) {
-      console.warn('Could not update localStorage', e);
-    }
-
-    resetBtn();
-    renderGames(data);
-  } catch (err) {
-    alert('Error connecting to server: ' + err.message);
-    resetBtn();
-  }
-
-  function resetBtn() {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerText = 'Find Easy Games';
-    }
-  }
-}
-
-// Modal helper functions
-function showPaywallModal() {
-  const modal = document.getElementById('paywallModal');
-  if (modal) modal.style.display = 'flex';
-}
-
-function closePaywallModal() {
-  const modal = document.getElementById('paywallModal');
-  if (modal) modal.style.display = 'none';
-}
-
+      // TRIGGER IN-PAGE PAYWALL MODAL
+      if (usageData.count >= MAX_DAILY) {
+        showPaywallModal();
+        return;
       }
 
       btn.disabled = true;
@@ -224,6 +197,16 @@ function closePaywallModal() {
       }
     }
 
+    function showPaywallModal() {
+      const modal = document.getElementById('paywallModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closePaywallModal() {
+      const modal = document.getElementById('paywallModal');
+      if (modal) modal.style.display = 'none';
+    }
+
     function renderGames(data) {
       const resultsDiv = document.getElementById('results');
       if (!resultsDiv) return;
@@ -235,7 +218,6 @@ function closePaywallModal() {
         return;
       }
 
-      // Clean out stray divider lines
       const cleanText = text.replace(/\*\*\*/g, '').trim();
       const rawCards = cleanText.split(/###\s+/).filter(Boolean);
 
@@ -248,7 +230,6 @@ function closePaywallModal() {
         bodyLines.forEach(line => {
           let trimmed = line.trim();
 
-          // Parse metadata into pill tags
           if (trimmed.includes('Prep Time:') || trimmed.includes('Mess Level:') || trimmed.includes('Parent Energy')) {
             const parts = trimmed.split('|');
             let tagsHtml = '<div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin: 0.5rem 0 0.8rem 0;">';
@@ -265,7 +246,6 @@ function closePaywallModal() {
             tagsHtml += '</div>';
             htmlBody += tagsHtml;
           } else {
-            // Format bold headers and bullet points cleanly
             let formatted = trimmed
               .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
               .replace(/^\*\s+/, '• ');
@@ -280,44 +260,13 @@ function closePaywallModal() {
     }
   </script>
   
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
-    });
-  }
-</script>
-<!-- Upgrade Modal Overlay -->
-<div id="paywallModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
-  <div style="background: #FFFFFF; max-width: 440px; width: 100%; border-radius: 20px; padding: 1.75rem; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative;">
-    
-    <div style="background: #FFF0F3; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 1.75rem;">
-      ✨
-    </div>
-
-    <h2 style="font-size: 1.35rem; font-weight: 800; color: #2D3748; margin-bottom: 0.5rem;">Daily Limit Reached</h2>
-    <p style="font-size: 0.925rem; color: #718096; line-height: 1.5; margin-bottom: 1.25rem;">
-      You've used your 3 free game generations for today! Upgrade to <strong>PlayBox AI Unlimited</strong> to keep instant, screen-free activity ideas on tap all evening.
-    </p>
-
-    <!-- Value Props -->
-    <div style="background: #F4F7FC; border-radius: 12px; padding: 0.85rem; text-align: left; margin-bottom: 1.25rem; font-size: 0.85rem; color: #4A5568;">
-      <div style="margin-bottom: 0.4rem;">⚡ <strong>Unlimited</strong> AI game generations</div>
-      <div style="margin-bottom: 0.4rem;">👶 Custom developmental age filters</div>
-      <div>🔒 Cancel anytime with one tap</div>
-    </div>
-
-    <!-- Call to Action -->
-    <a id="stripeUpgradeLink" href="YOUR_STRIPE_PAYMENT_LINK_HERE" target="_blank" style="display: block; width: 100%; padding: 0.9rem; background: #5B8DEF; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 12px rgba(91, 141, 239, 0.35); margin-bottom: 0.75rem;">
-      Upgrade for £3.95/mo
-    </a>
-
-    <button type="button" onclick="closePaywallModal()" style="background: transparent; border: none; color: #A0AEC0; font-size: 0.85rem; font-weight: 600; cursor: pointer; width: auto; padding: 0.25rem;">
-      Maybe tomorrow
-    </button>
-  </div>
-</div>
-
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
+      });
+    }
+  </script>
 </body>
 </html>
-      
