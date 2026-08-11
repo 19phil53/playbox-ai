@@ -87,37 +87,96 @@
 
   <script>
     async function generateGames() {
-      const btn = document.getElementById('generateBtn');
-      const itemsInput = document.getElementById('itemsInput');
-      const items = itemsInput ? itemsInput.value.trim() : '';
-      const age = document.getElementById('ageSelect')?.value || '4-5 Years';
-      const time = document.getElementById('timeSelect')?.value || '30 Mins';
+  const btn = document.getElementById('generateBtn');
+  const itemsInput = document.getElementById('itemsInput');
+  const items = itemsInput ? itemsInput.value.trim() : '';
+  const age = document.getElementById('ageSelect')?.value || '4-5 Years';
+  const time = document.getElementById('timeSelect')?.value || '30 Mins';
 
-      if (!items) {
-        alert('Please enter a few items you have on hand!');
-        return;
+  if (!items) {
+    alert('Please enter a few items you have on hand!');
+    return;
+  }
+
+  // Safe daily usage limit check
+  const MAX_DAILY = 3;
+  const today = new Date().toISOString().split('T')[0];
+  let usageData = { date: today, count: 0 };
+
+  try {
+    const stored = localStorage.getItem('playbox_usage');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed && parsed.date === today) {
+        usageData = parsed;
       }
+    }
+  } catch (e) {
+    usageData = { date: today, count: 0 };
+  }
 
-      // Safe daily usage limit check
-      const MAX_DAILY = 3;
-      const today = new Date().toISOString().split('T')[0];
-      let usageData = { date: today, count: 0 };
+  // TRIGGER IN-PAGE PAYWALL MODAL
+  if (usageData.count >= MAX_DAILY) {
+    showPaywallModal();
+    return;
+  }
 
-      try {
-        const stored = localStorage.getItem('playbox_usage');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (parsed && parsed.date === today) {
-            usageData = parsed;
-          }
-        }
-      } catch (e) {
-        usageData = { date: today, count: 0 };
-      }
+  btn.disabled = true;
+  btn.innerText = 'Finding Ideas...';
+  
+  const resultsDiv = document.getElementById('results');
+  if (resultsDiv) {
+    resultsDiv.innerHTML = '<div class="loading"><p>Finding quick, zero-stress ideas...</p></div>';
+  }
 
-      if (usageData.count >= MAX_DAILY) {
-        alert("You've reached your 3 free game generations for today! Come back tomorrow or upgrade for unlimited access.");
-        return;
+  try {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items, age, time })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      alert('Error generating games: ' + (data.error || 'Unknown error'));
+      resetBtn();
+      return;
+    }
+
+    try {
+      usageData.count += 1;
+      localStorage.setItem('playbox_usage', JSON.stringify(usageData));
+    } catch (e) {
+      console.warn('Could not update localStorage', e);
+    }
+
+    resetBtn();
+    renderGames(data);
+  } catch (err) {
+    alert('Error connecting to server: ' + err.message);
+    resetBtn();
+  }
+
+  function resetBtn() {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = 'Find Easy Games';
+    }
+  }
+}
+
+// Modal helper functions
+function showPaywallModal() {
+  const modal = document.getElementById('paywallModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closePaywallModal() {
+  const modal = document.getElementById('paywallModal');
+  if (modal) modal.style.display = 'none';
+}
+
       }
 
       btn.disabled = true;
