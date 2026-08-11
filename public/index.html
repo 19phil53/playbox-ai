@@ -102,6 +102,7 @@
 
   <script>
     async function generateGames() {
+  const btn = document.querySelector('button');
   const items = document.getElementById('itemsInput').value.trim();
   const age = document.getElementById('ageSelect').value;
   const time = document.getElementById('timeSelect').value;
@@ -111,7 +112,7 @@
     return;
   }
 
-  // --- DAILY USAGE CAP LOGIC ---
+  // --- 1. DAILY USAGE CAP LOGIC ---
   const MAX_DAILY_GENERATIONS = 3;
   const today = new Date().toISOString().split('T')[0];
 
@@ -121,14 +122,16 @@
     usageData = { date: today, count: 0 };
   }
 
-  // Block user if limit reached
+  // Check limit
   if (usageData.count >= MAX_DAILY_GENERATIONS) {
     alert("You've reached your 3 free game generations for today! Come back tomorrow or upgrade for unlimited access.");
+    if (typeof hideLoadingState === 'function') hideLoadingState();
+    if (btn) btn.disabled = false;
     return;
   }
-  // -----------------------------
+  // --------------------------------
 
-  showLoadingState();
+  if (typeof showLoadingState === 'function') showLoadingState();
 
   try {
     const response = await fetch('/api/generate', {
@@ -141,9 +144,27 @@
 
     if (!response.ok || data.error) {
       alert('Error generating games: ' + (data.error || 'Unknown error'));
-      hideLoadingState();
+      if (typeof hideLoadingState === 'function') hideLoadingState();
+      if (btn) btn.disabled = false;
       return;
     }
+
+    // --- 2. INCREMENT COUNT ON SUCCESS ---
+    usageData.count += 1;
+    localStorage.setItem('playbox_usage', JSON.stringify(usageData));
+    // -------------------------------------
+
+    if (typeof hideLoadingState === 'function') hideLoadingState();
+    if (btn) btn.disabled = false;
+
+    renderGames(data);
+  } catch (err) {
+    alert('Error connecting to server: ' + err.message);
+    if (typeof hideLoadingState === 'function') hideLoadingState();
+    if (btn) btn.disabled = false;
+  }
+}
+
 
     // Increment count on successful generation
     usageData.count += 1;
