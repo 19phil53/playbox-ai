@@ -113,24 +113,21 @@
 
   // --- DAILY USAGE CAP LOGIC ---
   const MAX_DAILY_GENERATIONS = 3;
-  const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+  const today = new Date().toISOString().split('T')[0];
 
-  // Retrieve stored data
   let usageData = JSON.parse(localStorage.getItem('playbox_usage')) || { date: today, count: 0 };
 
-  // Reset count if it's a new day
   if (usageData.date !== today) {
     usageData = { date: today, count: 0 };
   }
 
-  // Check if limit is reached
+  // Block user if limit reached
   if (usageData.count >= MAX_DAILY_GENERATIONS) {
     alert("You've reached your 3 free game generations for today! Come back tomorrow or upgrade for unlimited access.");
     return;
   }
   // -----------------------------
 
-  // UI loading states
   showLoadingState();
 
   try {
@@ -147,6 +144,18 @@
       hideLoadingState();
       return;
     }
+
+    // Increment count on successful generation
+    usageData.count += 1;
+    localStorage.setItem('playbox_usage', JSON.stringify(usageData));
+
+    renderGames(data);
+  } catch (err) {
+    alert('Error connecting to server: ' + err.message);
+    hideLoadingState();
+  }
+}
+
 
     // --- INCREMENT COUNT ON SUCCESS ---
     usageData.count += 1;
