@@ -1,0 +1,21 @@
+{
+  "short_name": "PlayBox AI",
+  "name": "PlayBox AI - Screen-Free Games",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#F4F7FC",
+  "theme_color": "#5B8DEF",
+  "display": "standalone",
+  "orientation": "portrait"
+}
